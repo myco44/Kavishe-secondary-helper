@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="sw" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kavishe Secondary School Helper Pro V12</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .glass-card {
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #334155;
+        }
+    </style>
+</head>
+<body class="bg-[#030712] text-slate-100 min-h-screen antialiased flex flex-col font-sans selection:bg-blue-500/30">
+
+    <!-- TOP NAVIGATION APP BAR -->
+    <header class="sticky top-0 z-40 border-b border-slate-900 bg-[#030712]/80 backdrop-blur-md px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-500/20">
+                <i class="fa-solid fa-school text-white text-base"></i>
+            </div>
+            <div>
+                <h1 class="text-sm font-black tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
+                    KAVISHE SECONDARY SCHOOL HELPER
+                </h1>
+                <p class="text-[10px] text-gray-500 font-bold tracking-wider">VERSION 12 — SMART VISION & MEMORY SYSTEM</p>
+            </div>
+        </div>
+
+        <!-- GEMINI API SETUP SECTION -->
+        <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-end">
+            <div class="relative w-full sm:w-64">
+                <i class="fa-solid fa-key absolute left-3 top-2.5 text-slate-500 text-xs"></i>
+                <input type="password" id="apiKeyInput" placeholder="Weka namba yakujiunga na darasa hapa..." 
+                    class="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-950/80 border border-slate-800 rounded-xl focus:border-blue-500 focus:outline-none transition text-slate-200">
+            </div>
+            <button onclick="saveApiKey()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 shadow-md shadow-blue-600/10">
+                <i class="fa-solid fa-floppy-disk"></i> Hifadhi
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN DASHBOARD WRAPPER -->
+    <main class="flex-1 grid grid-cols-1 lg:grid-cols-4 gap-4 p-4 max-w-[1600px] w-full mx-auto">
+        
+        <!-- SIDEBAR CONTROLS (1 Column) -->
+        <div class="lg:col-span-1 space-y-4 flex flex-col max-h-[calc(100vh-80px)] overflow-y-auto pr-1">
+            
+            <!-- SECTION 1: VYUMBA VYA MADARASA -->
+            <div class="glass-card border border-slate-900/60 p-4 rounded-2xl space-y-3">
+                <h2 class="text-xs font-black tracking-wider text-slate-400 flex items-center gap-2">
+                    <i class="fa-solid fa-layer-group text-blue-500"></i> CHAGUA DARASA
+                </h2>
+                <div class="grid grid-cols-3 gap-1.5" id="classSelector"></div>
+            </div>
+
+            <!-- SECTION 2: TAHAKASI / COMBINATIONS -->
+            <div id="combinationWrapper" class="glass-card border border-slate-900/60 p-4 rounded-2xl space-y-3 hidden">
+                <h2 class="text-xs font-black tracking-wider text-yellow-500 flex items-center gap-2">
+                    <i class="fa-solid fa-graduation-cap"></i> CHAGUA TAHAKASI (COMBINATION)
+                </h2>
+                <div class="grid grid-cols-3 gap-1.5" id="combinationSelector"></div>
+            </div>
+
+            <!-- SECTION 3: MASOMO RASMI -->
+            <div class="glass-card border border-slate-900/60 p-4 rounded-2xl space-y-3">
+                <h2 class="text-xs font-black tracking-wider text-slate-400 flex items-center gap-2">
+                    <i class="fa-solid fa-book text-blue-500"></i> MASOMO YAKO
+                </h2>
+                <div class="space-y-1.5 max-h-[180px] overflow-y-auto pr-1" id="subjectSelector">
+                    <p class="text-xs text-gray-500 text-center py-4">Chagua darasa kwanza.</p>
+                </div>
+            </div>
+
+            <!-- SECTION 4: MADA ZA KITABU (TET SYLLABUS) -->
+            <div class="glass-card border border-slate-900/60 p-4 rounded-2xl space-y-3">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xs font-black tracking-wider text-slate-400 flex items-center gap-2">
+                        <i class="fa-solid fa-list-ol text-blue-500"></i> MADA ZA KITABU
+                    </h2>
+                    <button id="btnFetchTopics" onclick="fetchSyllabusViaAi()" class="hidden text-[10px] bg-blue-950 text-blue-400 font-bold px-2 py-1 rounded-lg border border-blue-900/50 hover:bg-blue-900 transition flex items-center gap-1">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Za Kavishe
+                    </button>
+                </div>
+                <div class="space-y-1.5 overflow-y-auto pr-1 max-h-[180px]" id="topicSelector">
+                    <p class="text-xs text-gray-500 text-center py-4">Chagua Somo uone mada.</p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- MAIN LEARNING BOARD & LESSON DISPLAY (2 Columns) -->
+        <div class="lg:col-span-2 flex flex-col space-y-4 max-h-[calc(100vh-80px)] overflow-y-auto">
+            
+            <!-- STATUS TOP BAR INDICATOR -->
+            <div class="glass-card border border-slate-900/60 p-3 rounded-2xl flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                    <p id="statusText" class="text-xs font-bold text-gray-300">Ubaoni wa Mwalimu Kavishe — Tayari Kufundisha</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span id="historyCounter" class="text-[10px] bg-slate-900 text-slate-400 px-2.5 py-1 rounded-full font-black border border-slate-800">Masomo yaliyohifadhiwa: 0</span>
+                    <span id="classBadge" class="hidden text-[10px] bg-blue-500/10 text-blue-400 px-2.5 py-1 rounded-full font-black border border-blue-500/20"></span>
+                </div>
+            </div>
+
+            <!-- CONTROLLER BUTTONS FOR LEARNING MODES & HISTORY -->
+            <div class="flex gap-2 bg-slate-950 p-1.5 rounded-xl border border-slate-900">
+                <button id="btn_tab_notes" onclick="switchLessonTab('notes')" class="flex-1 py-2.5 text-xs font-bold rounded-lg text-blue-400 bg-slate-900 transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-chalkboard-user"></i> 1. Ubao wa Masomo
+                </button>
+                <button id="btn_tab_quiz" onclick="switchLessonTab('quiz')" class="flex-1 py-2.5 text-xs font-bold rounded-lg text-gray-400 hover:text-white transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-file-signature"></i> 2. Mazoezi na Mitihani
+                </button>
+                <button id="btn_tab_history" onclick="switchLessonTab('history')" class="flex-1 py-2.5 text-xs font-bold rounded-lg text-gray-400 hover:text-white transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-clock-rotate-left"></i> 3. Kumbukumbu (Kurasa)
+                </button>
+            </div>
+
+            <!-- SCREEN 1: CONTENT DISPLAY FOR LESSON NOTES -->
+            <div id="tab_notes" class="lesson-tab-content flex-1 glass-card border border-slate-900/60 rounded-2xl p-5 flex flex-col space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-900 pb-3">
+                    <h3 id="notesTitle" class="text-sm font-black text-white tracking-wide">Mada Haijachaguliwa</h3>
+                    
+                    <div class="flex items-center gap-2">
+                        <!-- UAMUZI WA KUPAKIA DAFTARI/KITABU -->
+                        <label class="bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 text-xs px-3 py-2 rounded-xl cursor-pointer transition flex items-center gap-1.5 font-bold">
+                            <i class="fa-solid fa-camera text-blue-400"></i> Pakia Daftari/Kitabu
+                            <input type="file" id="visionFileInput" accept="image/*" class="hidden" onchange="handleVisionUpload(event)">
+                        </label>
+                        
+                        <button onclick="teachMeNow()" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black text-xs px-4 py-2 rounded-xl transition hover:scale-[1.02] flex items-center gap-2 shadow-lg shadow-blue-600/10">
+                            <i class="fa-solid fa-play"></i> Fundisha sasa hivi
+                        </button>
+                    </div>
+                </div>
+
+                <!-- PREVIEW OF UPLOADED IMAGE -->
+                <div id="imagePreviewContainer" class="hidden relative p-2 bg-slate-950 border border-slate-900 rounded-xl max-w-xs mx-auto">
+                    <img id="imagePreviewTarget" class="max-h-32 rounded-lg object-contain w-full">
+                    <button onclick="clearUploadedImage()" class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-600 rounded-full text-white text-[10px] flex items-center justify-center hover:bg-red-500">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <div id="lessonContentContainer" class="text-xs leading-relaxed text-gray-300 space-y-4 flex-1 overflow-y-auto max-h-[460px] pr-1">
+                    <div class="text-center py-20 text-gray-500 space-y-3">
+                        <i class="fa-solid fa-book-open text-4xl text-slate-800"></i>
+                        <p class="font-medium">Karibu kwenye Mfumo Mpya wa Msaada wa Masomo ya Sekondari Tanzania.</p>
+                        <p class="text-[11px] max-w-sm mx-auto text-gray-600">Unaweza kuchagua mada au kupiga picha kurasa za daftari au kitabu chako kwa kubonyeza kitufe cha <strong>"Pakia Daftari/Kitabu"</strong> hapo juu ili mwalimu Kavishe akufundishe na kutoa ufafanuzi wa kina ubaoni!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SCREEN 2: QUIZZES AND EXAMINATION INTERFACE -->
+            <div id="tab_quiz" class="lesson-tab-content hidden flex-1 glass-card border border-slate-900/60 rounded-2xl p-5 flex flex-col space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-900 pb-3">
+                    <div>
+                        <h3 class="text-sm font-black text-white tracking-wide">Chumba cha Mtihani (Quiz Zone)</h3>
+                    </div>
+                    <span id="quizScoreBadge" class="text-xs bg-yellow-500/10 text-yellow-500 font-black px-3 py-1.5 rounded-xl border border-yellow-500/20">Alama: 0/0</span>
+                </div>
+                <div id="quizContainer" class="flex-1 overflow-y-auto max-h-[460px] pr-1 space-y-4">
+                    <p class="text-xs text-gray-500 text-center py-12">Tafadhali chagua mada kwanza na uingie hapa kujaribu maswali.</p>
+                </div>
+            </div>
+
+            <!-- SCREEN 3: KUMBUKUMBU NA KURASA ZILIZOPITA -->
+            <div id="tab_history" class="lesson-tab-content hidden flex-1 glass-card border border-slate-900/60 rounded-2xl p-5 flex flex-col space-y-3">
+                <div class="border-b border-slate-900 pb-2.5">
+                    <h3 class="text-sm font-black text-white tracking-wide">Masomo yaliyopita & Kurasa za Kumbukumbu</h3>
+                    <p class="text-[10px] text-gray-500 font-semibold">Unaweza kurejea somo lolote lililopita au kulifuta moja moja hapa chini</p>
+                </div>
+                <div id="historyLogsContainer" class="flex-1 overflow-y-auto max-h-[460px] pr-1 space-y-2.5">
+                    <!-- Kumbukumbu zitajazwa hapa kwa nguvu ya JavaScript -->
+                </div>
+            </div>
+
+        </div>
+
+        <!-- TEACHER CONSULTATION BOX - AI CHAT INTERFACE (1 Column) -->
+        <div class="lg:col-span-1 glass-card border border-slate-900/60 rounded-2xl p-4 flex flex-col max-h-[calc(100vh-80px)] overflow-hidden">
+            <div class="flex items-center gap-2.5 border-b border-slate-900 pb-3 mb-3 justify-between">
+                
+                <!-- SEHEMU KUU YA PICHA YAKO (DESIGNED KITAALAMU SANA) -->
+                <div class="flex items-center gap-2.5">
+                    <div class="relative group">
+                        <!-- Duara la picha lenye border glow na mng'ao wa kisasa -->
+                        <div class="w-11 h-11 rounded-full border-2 border-blue-500 p-[2px] shadow-[0_0_12px_rgba(59,130,246,0.5)] overflow-hidden shrink-0 bg-slate-900 flex items-center justify-center">
+                            <img id="teacherAvatarImg" src="https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=150&q=80" alt="Mwalimu" class="w-full h-full object-cover rounded-full">
+                        </div>
+                        <!-- Kitufe kidogo cha kamera cha juu ya picha yako kikiwa designed vizuri -->
+                        <label for="uploadTeacherPhoto" class="absolute -bottom-1 -right-1 w-5 h-5 bg-blue-600 hover:bg-blue-500 text-white rounded-full text-[9px] flex items-center justify-center cursor-pointer shadow-md transition transform hover:scale-110 border border-slate-950" title="Pakia Picha Yako Hapa">
+                            <i class="fa-solid fa-camera"></i>
+                        </label>
+                        <input type="file" id="uploadTeacherPhoto" accept="image/*" class="hidden" onchange="handleTeacherAvatarUpload(event)">
+                    </div>
+                    <div>
+                        <h3 class="text-xs font-black text-white uppercase tracking-wider">Mwalimu Kavishe</h3>
+                        <p class="text-[10px] text-emerald-500 font-bold flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse"></span> Yupo Ubaoni (Online)
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Kitufe cha kurejesha picha ya zamani (optional) -->
+                <button onclick="resetTeacherAvatar()" class="text-[10px] text-gray-500 hover:text-gray-300 font-bold transition" title="Rudi kwenye picha ya zamani">
+                    <i class="fa-solid fa-rotate-left"></i>
+                </button>
+            </div>
+
+            <!-- CHAT SCREEN STREAM -->
+            <div id="teacherChatBox" class="flex-1 overflow-y-auto space-y-3 pr-1 p-1 bg-slate-950/40 rounded-xl mb-3 text-xs">
+                <div class="flex gap-2 text-gray-400 mb-2">
+                    <strong>Mwalimu:</strong> Habari ya leo mwanafunzi wangu? Nipo tayari kufafanua somo, daftari, picha uliyopakia au mada yoyote ya sekondari. Uliza swali lako hapa chini!
+                </div>
+            </div>
+
+            <!-- CHAT INPUT ACTION BAR -->
+            <div class="flex gap-1.5 items-center bg-slate-950 p-1 rounded-xl border border-slate-900">
+                <input type="text" id="teacherQueryInput" onkeypress="handleTeacherEnter(event)" placeholder="Uliza swali lolote la sekondari hapa..." 
+                    class="flex-1 bg-transparent px-3 py-2 text-xs text-slate-200 placeholder-gray-600 focus:outline-none">
+                <button onclick="askTeacher()" class="w-8 h-8 rounded-lg bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center transition shrink-0 shadow-md">
+                    <i class="fa-solid fa-paper-plane text-xs"></i>
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FOOTER COPYRIGHT SECTION -->
+    <footer class="border-t border-slate-950 bg-slate-950/40 px-4 py-2.5 text-center text-[10px] text-gray-600 font-bold tracking-wide">
+        &copy; 2026  MYCO KAVISHE — SYSTEMS SECURITY INTEGRITY
+    </footer>
+
+    <!-- TOAST NOTIFICATION CONTAINER SYSTEM -->
+    <div id="toastNotification" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition duration-300 max-w-sm glass-card p-4 rounded-xl flex items-center gap-3 border-l-4">
+        <div id="toastIcon" class="w-7 h-7 rounded-lg bg-slate-950 flex items-center justify-center text-xs"></div>
+        <p id="toastMessage" class="text-xs font-bold text-gray-300"></p>
+    </div>
+
+    <!-- LOGIC APPLICATION JAVASCRIPT SYSTEM -->
+    <script>
+        const oLevelSubjectsTemplate = {
+            "Physics": ["Introduction to Physics", "Measurement", "Force", "Newton's Laws of Motion", "Current Electricity"],
+            "Chemistry": ["Introduction to Chemistry", "Laboratory Safety", "Matter", "Acids, Bases and Salts", "Chemical Equations"],
+            "Biology": ["Introduction to Biology", "Cell Structure", "Classification of Living Things", "Nutrition", "Transport of Matter"],
+            "Mathematics": ["Numbers", "Fractions and Decimals", "Algebraic Equations", "Geometry", "Trigonometry"],
+            "Geography": ["The Solar System", "The Earth's Movements", "Weather and Climate", "Map Reading", "Agriculture"],
+            "History": ["Sources of History", "Evolution of Man", "Pre-colonial African Systems", "Colonial Rule", "Nationalism"],
+            "Civics": ["Our Nation Tanzania", "Human Rights", "Citizenship", "The Government", "Democratic Process"],
+            "Kiswahili": ["Ufahamu na Ushairi", "Sarufi na Utumizi wa Lugha", "Uandishi wa Insha", "Fasihi Simulizi", "Uhakiki wa Vitabu"],
+            "English": ["Grammar and Tenses", "Comprehension", "Composition Writing", "Literature (Plays/Novels)", "Poetry Analysis"],
+            "Commerce": ["Introduction to Commerce", "Production", "Home Trade", "Wholesale and Retail Trade", "Warehousing"]
+        };
+
+        const classesDatabase = {
+            "Form 1": { icon: "fa-1", subjects: { ...oLevelSubjectsTemplate } },
+            "Form 2": { icon: "fa-2", subjects: { ...oLevelSubjectsTemplate } },
+            "Form 3": { icon: "fa-3", subjects: { ...oLevelSubjectsTemplate } },
+            "Form 4": { icon: "fa-4", subjects: { ...oLevelSubjectsTemplate } },
+            "Form 5": { icon: "fa-5", isAdvanced: true },
+            "Form 6": { icon: "fa-6", isAdvanced: true }
+        };
+
+        const advancedCombinations = {
+            "PCM": ["Advanced Mathematics", "Physics", "Chemistry", "General Studies"],
+            "PCB": ["Physics", "Chemistry", "Biology", "General Studies"],
+            "CBG": ["Chemistry", "Biology", "Geography", "General Studies"],
+            "PGM": ["Physics", "Geography", "Advanced Mathematics", "General Studies"],
+            "EGM": ["Economics", "Geography", "Advanced Mathematics", "General Studies"],
+            "HGL": ["History", "Geography", "English Language", "General Studies"],
+            "HGK": ["History", "Geography", "Kiswahili", "General Studies"],
+            "HKL": ["History", "Kiswahili", "English Language", "General Studies"],
+            "HGE": ["History", "Geography", "Economics", "General Studies"]
+        };
+
+        const advancedTopicsTemplate = {
+            "Advanced Mathematics": ["Set Theory and Logic", "Functions", "Trigonometry", "Calculus", "Differential Equations"],
+            "Physics": ["Mechanics", "Fluid Dynamics", "Thermodynamics", "Electrostatics", "Modern Physics"],
+            "Chemistry": ["Physical Chemistry", "Inorganic Chemistry", "Organic Chemistry", "Chemical Kinetics"],
+            "Biology": ["Cytology and Biochemistry", "Principles of Classification", "Human Physiology", "Genetics and Evolution"],
+            "Geography": ["Physical Geography", "Human and Economic Geography", "Practical Geography and GIS"],
+            "History": ["Pre-Colonial African Societies", "The Rise of Capitalism", "Colonialism and Resistance", "World History"],
+            "Economics": ["Introduction to Economics", "Price Theory", "Production Theory", "National Income", "International Trade"],
+            "English Language": ["English Structure and Grammar", "Phonology", "Lexics and Semantics", "Literature in English"],
+            "Kiswahili": ["Sarufi ya Kiswahili", "Uandishi na Utungaji", "Fasihi ya Kiswahili (Uhakiki)"],
+            "General Studies": ["Philosophy", "Science and Technology", "International Affairs", "Democratic Governance"]
+        };
+
+        // STATE ZA PROGRAMU
+        let currentClass = "";
+        let currentCombination = "";
+        let currentSubject = "";
+        let currentTopic = "";
+        let activeAnswers = {};
+        let base64ImageString = "";
+        let imageMimeType = "";
+        const defaultAvatar = "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=150&q=80";
+
+        window.onload = function() {
+            // Rejesha API Key
+            const savedKey = localStorage.getItem('kavishe_shule_key');
+            if (savedKey) {
+                document.getElementById('apiKeyInput').value = savedKey;
+            }
+            
+            // REJESHA PICHA YAKO ULIZO-UPLOAD KAMA IPO
+            const savedAvatar = localStorage.getItem('kavishe_custom_avatar');
+            if (savedAvatar) {
+                document.getElementById('teacherAvatarImg').src = savedAvatar;
+            }
+
+            renderClasses();
+            refreshHistoryUI();
+        };
+
+        function saveApiKey() {
+            const val = document.getElementById('apiKeyInput').value.trim();
+            localStorage.setItem('kavishe_shule_key', val);
+            showToast("namba imeifadhiwa vizuri!", "key", "blue");
+        }
+
+        // MFUMO MPYA WA KUPAKIA PICHA YAKO (TEACHER AVATAR UPLOAD)
+        function handleTeacherAvatarUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (!file.type.startsWith('image/')) {
+                return showToast("Tafadhali chagua picha pekee!", "exclamation-triangle", "red");
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const targetSrc = e.target.result;
+                // Badilisha picha iliyopo ubaoni mara moja
+                document.getElementById('teacherAvatarImg').src = targetSrc;
+                // Hifadhi kwenye kumbukumbu ili isipotee ukizima programu
+                localStorage.setItem('kavishe_custom_avatar', targetSrc);
+                showToast("Picha yako imepakiwa na kusanifishwa vizuri ubaoni!", "user-astronaut", "blue");
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function resetTeacherAvatar() {
+            localStorage.removeItem('kavishe_custom_avatar');
+            document.getElementById('teacherAvatarImg').src = defaultAvatar;
+            showToast("Picha imerejeshwa kwenye muundo wa awali.", "rotate-left", "blue");
+        }
+
+        function switchLessonTab(tabId) {
+            document.querySelectorAll('.lesson-tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById('tab_' + tabId).classList.remove('hidden');
+
+            document.getElementById('btn_tab_notes').className = tabId === 'notes'
+                ? "flex-1 py-2.5 text-xs font-bold rounded-lg text-blue-400 bg-slate-900 transition flex items-center justify-center gap-2"
+                : "flex-1 py-2.5 text-xs font-bold rounded-lg text-gray-400 hover:text-white transition flex items-center justify-center gap-2";
+
+            document.getElementById('btn_tab_quiz').className = tabId === 'quiz'
+                ? "flex-1 py-2.5 text-xs font-bold rounded-lg text-yellow-500 bg-slate-900 transition flex items-center justify-center gap-2"
+                : "flex-1 py-2.5 text-xs font-bold rounded-lg text-gray-400 hover:text-white transition flex items-center justify-center gap-2";
+
+            document.getElementById('btn_tab_history').className = tabId === 'history'
+                ? "flex-1 py-2.5 text-xs font-bold rounded-lg text-emerald-400 bg-slate-900 transition flex items-center justify-center gap-2"
+                : "flex-1 py-2.5 text-xs font-bold rounded-lg text-gray-400 hover:text-white transition flex items-center justify-center gap-2";
+        }
+
+        // MAANDALIZI YA IMAGE VISION (DAFTARI/KITABU)
+        function handleVisionUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            imageMimeType = file.type;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const fullResult = e.target.result;
+                base64ImageString = fullResult.split(',')[1];
+                
+                document.getElementById('imagePreviewTarget').src = fullResult;
+                document.getElementById('imagePreviewContainer').classList.remove('hidden');
+                showToast("Picha ya daftari/kitabu imepakiwa tayari!", "image", "blue");
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearUploadedImage() {
+            base64ImageString = "";
+            imageMimeType = "";
+            document.getElementById('visionFileInput').value = "";
+            document.getElementById('imagePreviewContainer').classList.add('hidden');
+            showToast("Picha imeondolewa ubaoni.", "trash", "blue");
+        }
+
+        // VYUMBA VYA MADARASA
+        function renderClasses() {
+            const container = document.getElementById('classSelector');
+            container.innerHTML = '';
+            Object.keys(classesDatabase).forEach(cls => {
+                const icon = classesDatabase[cls].icon;
+                container.innerHTML += `
+                    <button onclick="selectClass('${cls}')" id="btn_class_${cls.replace(/\s/g, '_')}" class="class-btn p-2 rounded-xl border border-slate-900 bg-slate-900/40 hover:border-blue-500 text-center transition">
+                        <i class="fa-solid ${icon} block text-xs text-blue-400 mb-0.5"></i>
+                        <span class="text-[10px] font-bold text-white block">${cls}</span>
+                    </button>
+                `;
+            });
+        }
+
+        function selectClass(className) {
+            currentClass = className;
+            currentCombination = ""; currentSubject = ""; currentTopic = "";
+            document.querySelectorAll('.class-btn').forEach(btn => btn.classList.remove('border-blue-500', 'bg-blue-950/40'));
+            document.getElementById(`btn_class_${className.replace(/\s/g, '_')}`).classList.add('border-blue-500', 'bg-blue-950/40');
+
+            const comboWrapper = document.getElementById('combinationWrapper');
+            const subjectContainer = document.getElementById('subjectSelector');
+            document.getElementById('topicSelector').innerHTML = `<p class="text-xs text-gray-500 text-center py-4">Chagua somo.</p>`;
+            document.getElementById('btnFetchTopics').classList.add('hidden');
+
+            if (classesDatabase[className].isAdvanced) {
+                comboWrapper.classList.remove('hidden');
+                subjectContainer.innerHTML = `<p class="text-xs text-yellow-600/70 text-center py-4">Chagua combination kwanza.</p>`;
+                renderCombinations();
+            } else {
+                comboWrapper.classList.add('hidden');
+                renderOLevelSubjects();
+            }
+        }
+
+        function renderCombinations() {
+            const container = document.getElementById('combinationSelector');
+            container.innerHTML = '';
+            Object.keys(advancedCombinations).forEach(combo => {
+                container.innerHTML += `
+                    <button onclick="selectCombination('${combo}')" id="btn_combo_${combo}" class="combo-btn p-1.5 text-center rounded-xl border border-slate-900 bg-slate-950 text-[11px] font-black text-gray-400 hover:border-yellow-500 transition">
+                        ${combo}
+                    </button>
+                `;
+            });
+        }
+
+        function selectCombination(comboName) {
+            currentCombination = comboName; currentSubject = ""; currentTopic = "";
+            document.querySelectorAll('.combo-btn').forEach(btn => btn.classList.remove('border-yellow-500', 'bg-yellow-950/20', 'text-yellow-500'));
+            document.getElementById(`btn_combo_${comboName}`).classList.add('border-yellow-500', 'bg-yellow-950/20', 'text-yellow-500');
+
+            const container = document.getElementById('subjectSelector');
+            container.innerHTML = '';
+            advancedCombinations[comboName].forEach(sub => {
+                container.innerHTML += `
+                    <button onclick="selectSubject('${sub}')" id="btn_sub_${sub.replace(/[\s\(\),&]/g, '_')}" class="subject-btn w-full p-2 text-left rounded-xl border border-gray-850 bg-slate-900/40 text-xs font-bold text-gray-300 hover:border-blue-500 transition flex items-center gap-2">
+                        <i class="fa-solid fa-graduation-cap text-yellow-500"></i> ${sub}
+                    </button>
+                `;
+            });
+        }
+
+        function renderOLevelSubjects() {
+            const container = document.getElementById('subjectSelector');
+            container.innerHTML = '';
+            Object.keys(classesDatabase[currentClass].subjects).forEach(sub => {
+                container.innerHTML += `
+                    <button onclick="selectSubject('${sub}')" id="btn_sub_${sub.replace(/[\s\(\),&]/g, '_')}" class="subject-btn w-full p-2 text-left rounded-xl border border-slate-850 bg-slate-900/40 text-xs font-bold text-gray-300 hover:border-blue-500 transition flex items-center gap-2">
+                        <i class="fa-solid fa-book-bookmark text-blue-500"></i> ${sub}
+                    </button>
+                `;
+            });
+        }
+
+        function selectSubject(subName) {
+            currentSubject = subName;
+            document.querySelectorAll('.subject-btn').forEach(btn => btn.classList.remove('border-blue-500', 'bg-blue-950/20', 'text-white'));
+            const targetId = `btn_sub_${subName.replace(/[\s\(\),&]/g, '_')}`;
+            if (document.getElementById(targetId)) document.getElementById(targetId).classList.add('border-blue-500', 'bg-blue-950/20', 'text-white');
+
+            document.getElementById('btnFetchTopics').classList.remove('hidden');
+            let topicsList = classesDatabase[currentClass].isAdvanced ? (advancedTopicsTemplate[subName] || []) : classesDatabase[currentClass].subjects[subName];
+            renderSyllabusTopics(topicsList);
+        }
+
+        function renderSyllabusTopics(topicsList) {
+            const container = document.getElementById('topicSelector');
+            container.innerHTML = '';
+            topicsList.forEach((top, idx) => {
+                container.innerHTML += `
+                    <button onclick="selectTopic('${top}')" id="btn_top_${top.replace(/[\s\(\),&?'"]/g, '_')}" class="topic-btn w-full p-1.5 text-left rounded-lg bg-slate-950/60 hover:bg-slate-900 text-[11px] text-gray-400 hover:text-white transition flex items-start gap-1.5">
+                        <span class="font-bold text-blue-500 shrink-0">${idx+1}.</span> ${top}
+                    </button>
+                `;
+            });
+        }
+
+        function selectTopic(topName) {
+            currentTopic = topName;
+            document.querySelectorAll('.topic-btn').forEach(btn => btn.classList.remove('bg-blue-950/30', 'text-white'));
+            const targetId = `btn_top_${topName.replace(/[\s\(\),&?'"]/g, '_')}`;
+            if (document.getElementById(targetId)) document.getElementById(targetId).classList.add('bg-blue-950/30', 'text-white');
+
+            document.getElementById('notesTitle').innerText = topName;
+            document.getElementById('lessonContentContainer').innerHTML = `
+                <div class="text-center py-16 text-gray-400 space-y-3">
+                    <i class="fa-solid fa-graduation-cap text-3xl text-blue-400 animate-pulse"></i>
+                    <p>Umechagua mada ya: <strong>${topName}</strong></p>
+                    <p class="text-xs">Bonyeza kitufe cha <strong>"Fundisha sasa hivi"</strong> juu iti nianze kufundisha ubaoni.</p>
+                </div>
+            `;
+            switchLessonTab('notes');
+        }
+
+        // KUFUNDISHA MADA AU KUSOMA PICHA YA KITABU/DAFTARI
+        async function teachMeNow() {
+            const apiKey = localStorage.getItem('kavishe_shule_key');
+            if (!apiKey) return showToast("Tafadhali weka namba ya kujiunga na darasa apo juu ya ukurasa!", "exclamation-triangle", "red");
+
+            const container = document.getElementById('lessonContentContainer');
+            container.innerHTML = `
+                <div class="text-center py-20 text-gray-400 space-y-3">
+                    <i class="fa-solid fa-spinner animate-spin text-3xl text-blue-500"></i>
+                    <p class="font-bold text-white">Mwalimu Kavishe anakagua na kuandika ubaoni...</p>
+                </div>
+            `;
+
+            let contentsPayload = [];
+            let systemContext = `Wewe ni Mwalimu Kavishe, mwalimu wa kibinadamu mwenye uzoefu nchini Tanzania. Fundisha kwa Kiswahili safi na weka mabano ya Kiingereza kwa maneno magumu ya kisayansi. Usijitaje kamwe kama AI au mashine ya kompyuta .`;
+
+            if (base64ImageString) {
+                systemContext += ` Mwanafunzi amepandisha picha ya kitabu/daftari lake hapo. Isome hiyo picha vizuri, itranslate au fafanua vilivyoandikwa, na kiululiza swali kuusu picha iyo umjibu kwa ufasaha na kina kirefu na mfundishe mada hiyo kwa mtindo wa kitaalamu wa sekondari Tanzania ikifuata mtaala wa TET .`;
+                contentsPayload = [{
+                    parts: [
+                        { text: systemContext + "\n\nFafanua picha hii kikamilifu na uandike somo ubaoni." },
+                        { inlineData: { mimeType: imageMimeType, data: base64ImageString } }
+                    ]
+                }];
+            } else {
+                if (!currentTopic) return showToast("Chagua mada au pakia picha kwanza!", "exclamation-triangle", "red");
+                systemContext += ` Fundisha mada ya "${currentTopic}" katika darasa la ${currentClass}, Somo la ${currentSubject}.`;
+                contentsPayload = [{ parts: [{ text: systemContext + "\n\nAndika somo zima la kitaalamu ubaoni hapa kuanzia sasa." }] }];
+            }
+
+            try {
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ contents: contentsPayload })
+                });
+
+                const data = await res.json();
+                if (data.candidates && data.candidates[0].content.parts[0].text) {
+                    const reply = data.candidates[0].content.parts[0].text;
+                    container.innerHTML = `<span id="typewriter_lessons"></span>`;
+                    runTypewriter(reply, "typewriter_lessons", container);
+
+                    const titleSave = base64ImageString ? "Ufafanuzi wa Picha ya Daftari/Kitabu" : `${currentClass} - ${currentSubject}: ${currentTopic}`;
+                    saveToHistory(titleSave, reply);
+                    clearUploadedImage();
+                }
+            } catch (err) {
+                console.error(err);
+                container.innerHTML = `<p class="text-red-400 text-center py-10">Kuna hitilafu! Angalia namba ya kuunganishwa au internet yako.</p>`;
+            }
+        }
+
+        // MFUMO WA KUMBUKUMBU (LOCALSTORAGE MEMORY)
+        function saveToHistory(title, content) {
+            let history = JSON.parse(localStorage.getItem('kavishe_history_v12')) || [];
+            history.unshift({ id: Date.now(), title: title, content: content });
+            localStorage.setItem('kavishe_history_v12', JSON.stringify(history));
+            refreshHistoryUI();
+        }
+
+        function refreshHistoryUI() {
+            const container = document.getElementById('historyLogsContainer');
+            let history = JSON.parse(localStorage.getItem('kavishe_history_v12')) || [];
+            
+            document.getElementById('historyCounter').innerText = `Masomo yaliyohifadhiwa: ${history.length}`;
+            if (history.length === 0) {
+                container.innerHTML = `<p class="text-xs text-gray-600 text-center py-10">Hakuna kumbukumbu za masomo zilizohifadhiwa bado.</p>`;
+                return;
+            }
+
+            container.innerHTML = '';
+            history.forEach((item, idx) => {
+                container.innerHTML += `
+                    <div class="p-3 bg-slate-950/80 border border-slate-900 rounded-xl flex items-center justify-between gap-3 text-xs">
+                        <div class="flex-1 cursor-pointer" onclick="loadHistoryToBoard(${item.id})">
+                            <p class="font-black text-blue-400 mb-0.5"><i class="fa-solid fa-file-lines"></i> Ukurasa ${idx+1}: ${item.title}</p>
+                            <p class="text-[10px] text-gray-500 font-semibold">Bofya hapa ili kuendeleza somo hili ubaoni</p>
+                        </div>
+                        <button onclick="deleteHistoryItem(${item.id})" class="text-gray-500 hover:text-red-400 p-2 transition" title="Futa somo hili">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                `;
+            });
+        }
+
+        function loadHistoryToBoard(id) {
+            let history = JSON.parse(localStorage.getItem('kavishe_history_v12')) || [];
+            let item = history.find(h => h.id === id);
+            if (!item) return;
+
+            document.getElementById('notesTitle').innerText = item.title;
+            const container = document.getElementById('lessonContentContainer');
+            container.innerHTML = `<span id="typewriter_lessons"></span>`;
+            runTypewriter(item.content, "typewriter_lessons", container);
+            
+            switchLessonTab('notes');
+            showToast("Somo limerejeshwa ubaoni ili uendeleze!", "clock-rotate-left", "blue");
+        }
+
+        function deleteHistoryItem(id) {
+            let history = JSON.parse(localStorage.getItem('kavishe_history_v12')) || [];
+            history = history.filter(h => h.id !== id);
+            localStorage.setItem('kavishe_history_v12', JSON.stringify(history));
+            refreshHistoryUI();
+            showToast("Somo hilo limefutwa kwenye kumbukumbu!", "trash", "blue");
+        }
+
+        // CHAT NA MWALIMU KAVISHE AI
+        function handleTeacherEnter(event) { if (event.key === 'Enter') askTeacher(); }
+
+        async function askTeacher() {
+            const input = document.getElementById('teacherQueryInput');
+            const query = input.value.trim();
+            if (!query) return;
+
+            const chatBox = document.getElementById('teacherChatBox');
+            chatBox.innerHTML += `<div class="flex gap-2 justify-end mb-3"><div class="bg-blue-950/80 text-blue-200 p-2 rounded-l-lg text-right max-w-[85%]"><b>Wewe:</b> ${query}</div></div>`;
+            input.value = '';
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            const apiKey = localStorage.getItem('kavishe_shule_key');
+            if (!apiKey) return showToast("Weka namba za kukuunganisha mwalim kavishe apo juu!", "exclamation-triangle", "red");
+
+            const loadingId = "load_" + Date.now();
+            chatBox.innerHTML += `<div class="text-gray-400 mb-3" id="${loadingId}"><strong>Mwalimu:</strong> Mwalimu Kavishe anaandika...</div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            const systemPrompt = `Wewe ni Mwalimu Kavishe, mwalimu wa sekondari nchini Tanzania. Jibu kwa Kiswahili na Kiingereza cha kitaalamu na usiseme kamwe wewe ni AI. Ujumbe wa mwanafunzi  wewe kavishe umesoma shule ya msingi mbokomu mpaka darasa la tatu ukaenda kuendelea dar tafuta jina la shule ya msingi dar secondary umesoma tanga na shule ya ualimu umesoma arusha pia una watoto wa tatu wawili wa kike na mmoja wakiume majina yao ni sharoni, millen, na ethan ulifiwa na mtoto wa kwanza aliitwa caren kwa sasa unaishi moshi kiborloni : "${query}"`;
+            try {
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: systemPrompt }] }] })
+                });
+                const data = await res.json();
+                document.getElementById(loadingId).remove();
+
+                if (data.candidates && data.candidates[0].content.parts[0].text) {
+                    const reply = data.candidates[0].content.parts[0].text;
+                    const ansId = "ans_" + Date.now();
+                    chatBox.innerHTML += `<div class="text-gray-200 mb-3"><strong>Mwalimu:</strong> <span id="${ansId}"></span></div>`;
+                    runTypewriter(reply, ansId, chatBox);
+                }
+            } catch (err) {
+                document.getElementById(loadingId).innerHTML = "Hitilafu imetokea kwenye mtandao.";
+            }
+        }
+
+        function runTypewriter(text, elementId, chatBoxContainer = null) {
+            const el = document.getElementById(elementId);
+            if (!el) return; el.innerHTML = "";
+            let i = 0; const speed = 4;
+            const formatted = text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\*(.*?)\*/g, '<em>$1</em>');
+            function type() {
+                if (i < formatted.length) {
+                    if (formatted.charAt(i) === '<') {
+                        let tagEnd = formatted.indexOf('>', i);
+                        if (tagEnd !== -1) { el.innerHTML += formatted.substring(i, tagEnd + 1); i = tagEnd + 1; }
+                    } else { el.innerHTML += formatted.charAt(i); i++; }
+                    if (chatBoxContainer) chatBoxContainer.scrollTop = chatBoxContainer.scrollHeight;
+                    setTimeout(type, speed);
+                }
+            }
+            type();
+        }
+
+        function showToast(message, icon, color) {
+            const toast = document.getElementById('toastNotification');
+            document.getElementById('toastMessage').innerText = message;
+            document.getElementById('toastIcon').innerHTML = `<i class="fa-solid fa-${icon}"></i>`;
+            toast.className = `fixed bottom-5 right-5 z-50 transform transition duration-300 max-w-sm glass-card p-4 rounded-xl flex items-center gap-3 border-l-4 ${color === 'red' ? 'border-red-500 bg-slate-900' : 'border-blue-500 bg-slate-900'}`;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => { toast.classList.add('translate-y-20', 'opacity-0'); }, 3500);
+        }
+    </script>
+</body>
+</html>
